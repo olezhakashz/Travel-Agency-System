@@ -1,0 +1,16 @@
+services:
+  postgresql:
+    container_name: travel_agency_postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: travel_agency_postgres_db
+      PGDATA: /data/postgres
+    volumes:
+      - travel_agency_postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+volumes:
+  travel_agency_postgres:
