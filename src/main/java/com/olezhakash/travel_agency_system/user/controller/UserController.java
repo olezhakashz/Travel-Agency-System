@@ -21,7 +21,12 @@ public class UserController {
     public ResponseEntity<?> register(
             @RequestBody @Valid RegisterRequest req
     ) {
-        userService.registerUser(req.getEmail(), req.getPassword());
+        userService.registerUser(
+                req.getEmail(),
+                req.getFirstName(),
+                req.getLastName(),
+                req.getPassword()
+        );
         return ResponseEntity.ok().build();
     }
 
