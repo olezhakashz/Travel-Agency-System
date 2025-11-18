@@ -1,4 +1,4 @@
-package com.olezhakash.travel_agency_system.config;
+package com.olezhakash.travel_agency_system.config.security;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;

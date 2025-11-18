@@ -3,6 +3,7 @@ package com.olezhakash.travel_agency_system.user.service;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
+import com.olezhakash.travel_agency_system.user.dto.response.UserDetailedResponse;
 import com.olezhakash.travel_agency_system.user.model.User;
 import com.olezhakash.travel_agency_system.user.model.enums.UserRole;
 import com.olezhakash.travel_agency_system.user.repository.UserRepository;
@@ -66,5 +67,18 @@ public class UserService {
 
 
         log.info("User registered successfully: " + userRecord.getUid());
+    }
+
+    public UserDetailedResponse getUserById(String uid) {
+        User user = userRepository.findById(uid).orElseThrow(
+                () -> new RuntimeException("User not found")
+        );
+
+        return UserDetailedResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .build();
     }
 }
