@@ -6,6 +6,7 @@ import com.olezhakash.travel_agency_system.trip.dto.response.TripResponse;
 import com.olezhakash.travel_agency_system.trip.service.TripService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,15 @@ public class TripController {
         return ResponseEntity.ok(
                 tripService.updateTrip(id, req)
         );
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<HttpStatus> updateTrip(
+            @PathVariable Long id
+    ) {
+        tripService.deleteTrip(id);
+        return ResponseEntity.noContent().build();
     }
 
 

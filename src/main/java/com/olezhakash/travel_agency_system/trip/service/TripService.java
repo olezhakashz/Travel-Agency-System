@@ -97,4 +97,7 @@ public class TripService {
                 .build();
     }
 
+    public void deleteTrip(Long id) {
+        tripRepository.deleteById(id);
+    }
 }
