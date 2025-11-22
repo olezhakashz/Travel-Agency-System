@@ -3,7 +3,6 @@ package com.olezhakash.travel_agency_system.booking.model;
 import com.olezhakash.travel_agency_system.trip.model.Trip;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -21,10 +20,8 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-    @Size(min = 2, max = 50)
     @Column(nullable = false)
-    private String customerName;
+    private String userId;
 
     @Column(nullable = false)
     @Min(1)
