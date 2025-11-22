@@ -5,10 +5,12 @@ import com.olezhakash.travel_agency_system.booking.dto.response.BookingResponse;
 import com.olezhakash.travel_agency_system.booking.mapper.BookingMapper;
 import com.olezhakash.travel_agency_system.booking.model.Booking;
 import com.olezhakash.travel_agency_system.booking.repository.BookingRepository;
+import com.olezhakash.travel_agency_system.config.auth.AuthUser;
 import com.olezhakash.travel_agency_system.trip.model.Trip;
 import com.olezhakash.travel_agency_system.trip.repository.TripRepository;
 import com.olezhakash.travel_agency_system.user.dto.response.UserDetailedResponse;
 import com.olezhakash.travel_agency_system.user.service.UserService;
+import com.olezhakash.travel_agency_system.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,4 +65,24 @@ public class BookingService {
             return response;
         });
     }
+
+    @Transactional
+    public void cancelBooking(Long id, AuthUser authUser) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        // ensure only creator can cancel
+        AuthUtils.authorizeUser(authUser.getUid(), booking.getUserId());
+
+        Trip trip = booking.getTrip();
+
+        // return seats back to the trip
+        trip.setAvailableSeats(trip.getAvailableSeats() + booking.getNumberOfSeats());
+        tripRepository.save(trip);
+
+        // delete the booking
+        bookingRepository.delete(booking);
+    }
+
+
 }

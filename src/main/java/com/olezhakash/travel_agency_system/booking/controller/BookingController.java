@@ -8,6 +8,7 @@ import com.olezhakash.travel_agency_system.config.auth.CurrentAuthUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,16 @@ public class BookingController {
             @CurrentAuthUser AuthUser authUser
     ) {
         return bookingService.getMyBookings(authUser.getUid(), page, size);
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<HttpStatus> cancelBooking(
+            @PathVariable Long id,
+            @CurrentAuthUser AuthUser authUser
+    ){
+        bookingService.cancelBooking(id, authUser);
+        return ResponseEntity.noContent().build();
     }
 
 }
