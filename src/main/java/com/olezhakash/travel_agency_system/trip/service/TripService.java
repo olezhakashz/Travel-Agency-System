@@ -4,11 +4,16 @@ import com.olezhakash.travel_agency_system.exception.ResourceNotFoundException;
 import com.olezhakash.travel_agency_system.trip.dto.request.CreateTripRequest;
 import com.olezhakash.travel_agency_system.trip.dto.request.UpdateTripRequest;
 import com.olezhakash.travel_agency_system.trip.dto.response.TripResponse;
+import com.olezhakash.travel_agency_system.trip.mapper.TripMapper;
 import com.olezhakash.travel_agency_system.trip.model.Trip;
 import com.olezhakash.travel_agency_system.trip.repository.TripRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 @RequiredArgsConstructor
@@ -16,6 +21,7 @@ import java.util.ArrayList;
 public class TripService {
 
     private final TripRepository tripRepository;
+    private final TripMapper tripMapper;
 
     public TripResponse createTrip(CreateTripRequest req) {
 
@@ -99,5 +105,29 @@ public class TripService {
 
     public void deleteTrip(Long id) {
         tripRepository.deleteById(id);
+    }
+
+    public Page<TripResponse> findTrips(
+                String destination,
+                LocalDate startDateFrom,
+                LocalDate startDateTo,
+                Double priceFrom,
+                Double priceTo,
+                Integer minSeats,
+                Pageable pageable
+    ) {
+
+        Specification<Trip> spec = Specification.unrestricted();
+
+        spec = spec.and(TripSpecifications.destinationLike(destination));
+        spec = spec.and(TripSpecifications.startDateFrom(startDateFrom));
+        spec = spec.and(TripSpecifications.startDateTo(startDateTo));
+        spec = spec.and(TripSpecifications.priceFrom(priceFrom));
+        spec = spec.and(TripSpecifications.priceTo(priceTo));
+        spec = spec.and(TripSpecifications.minAvailableSeats(minSeats));
+
+        return tripRepository.findAll(spec, pageable)
+                .map(tripMapper::toResponse);
+
     }
 }
