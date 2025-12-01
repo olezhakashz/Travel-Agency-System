@@ -29,13 +29,10 @@ public class UserService {
             @NotBlank @Email String email,
             @NotBlank @Size(min = 2, max = 50) String firstName,
             @NotBlank @Size(min = 2, max = 50) String lastName,
-            @NotBlank @Size(min = 6, max = 100) String password
+            @NotBlank @Size(min = 6, max = 100) String password,
+            UserRole role
     ) {
-        UserRecord.CreateRequest createRequest = new UserRecord.CreateRequest()
-                .setDisplayName(firstName + " " + lastName)
-                .setEmail(email)
-                .setPassword(password)
-                .setEmailVerified(true);
+        UserRecord.CreateRequest createRequest = createFirebaseCreateRequest(email, firstName, lastName, password);
 
         UserRecord userRecord;
 
@@ -50,7 +47,7 @@ public class UserService {
 
 //        Assign user role
         try {
-            firebaseAuth.setCustomUserClaims(userId, Map.of("role", "USER"));
+            firebaseAuth.setCustomUserClaims(userId, Map.of("role", role.toString()));
         } catch (FirebaseAuthException e) {
             throw new RuntimeException("Failed to set user role: " + e.getMessage());
         }
@@ -60,13 +57,13 @@ public class UserService {
                 .firstName(firstName)
                 .lastName(lastName)
                 .email(email)
-                .role(UserRole.USER)
+                .role(role)
                 .build();
 
         userRepository.save(user);
 
 
-        log.info("User registered successfully: " + userRecord.getUid());
+        log.info("User registered successfully: {}", userRecord.getUid());
     }
 
     public UserDetailedResponse getUserById(String uid) {
@@ -74,11 +71,22 @@ public class UserService {
                 () -> new RuntimeException("User not found")
         );
 
+        log.debug("User fetched: {}", user.getId());
+
         return UserDetailedResponse.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .build();
+    }
+
+
+    private UserRecord.CreateRequest createFirebaseCreateRequest(String email, String firstName, String lastName, String password){
+        return  new UserRecord.CreateRequest()
+                .setDisplayName(firstName + " " + lastName)
+                .setEmail(email)
+                .setPassword(password)
+                .setEmailVerified(true);
     }
 }

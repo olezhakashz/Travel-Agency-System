@@ -3,10 +3,12 @@ package com.olezhakash.travel_agency_system.user.controller;
 import com.olezhakash.travel_agency_system.config.auth.AuthUser;
 import com.olezhakash.travel_agency_system.config.auth.CurrentAuthUser;
 import com.olezhakash.travel_agency_system.user.dto.request.RegisterRequest;
+import com.olezhakash.travel_agency_system.user.model.enums.UserRole;
 import com.olezhakash.travel_agency_system.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -24,7 +26,23 @@ public class UserController {
                 req.getEmail(),
                 req.getFirstName(),
                 req.getLastName(),
-                req.getPassword()
+                req.getPassword(),
+                UserRole.USER
+        );
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/auth/admin/register")
+    public ResponseEntity<?> registerAdmin(
+            @RequestBody @Valid RegisterRequest req
+    ) {
+        userService.registerUser(
+                req.getEmail(),
+                req.getFirstName(),
+                req.getLastName(),
+                req.getPassword(),
+                UserRole.ADMIN
         );
         return ResponseEntity.ok().build();
     }
