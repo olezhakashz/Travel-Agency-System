@@ -12,12 +12,14 @@ import com.olezhakash.travel_agency_system.user.dto.response.UserDetailedRespons
 import com.olezhakash.travel_agency_system.user.service.UserService;
 import com.olezhakash.travel_agency_system.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BookingService {
@@ -34,6 +36,7 @@ public class BookingService {
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
 
         if (trip.getAvailableSeats() < req.numberOfSeats()) {
+            log.warn("Not enough available seats for trip: {}", trip.getId());
             throw new RuntimeException("Not enough available seats");
         }
 
@@ -46,6 +49,8 @@ public class BookingService {
                 .numberOfSeats(req.numberOfSeats())
                 .trip(trip)
                 .build();
+
+        log.info("Booking created: {}", booking.getId());
 
         bookingRepository.save(booking);
     }
@@ -61,6 +66,8 @@ public class BookingService {
             // fetch user from user-service (REST call)
             UserDetailedResponse user = userService.getUserById(booking.getUserId());
             response.setCustomerName(user.getFirstName() + " " + user.getLastName());
+
+            log.debug("Booking fetched: {}", response.getId());
 
             return response;
         });
@@ -79,6 +86,8 @@ public class BookingService {
         // return seats back to the trip
         trip.setAvailableSeats(trip.getAvailableSeats() + booking.getNumberOfSeats());
         tripRepository.save(trip);
+
+        log.info("Booking canceled: {}", booking.getId());
 
         // delete the booking
         bookingRepository.delete(booking);

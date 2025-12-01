@@ -8,6 +8,7 @@ import com.olezhakash.travel_agency_system.trip.mapper.TripMapper;
 import com.olezhakash.travel_agency_system.trip.model.Trip;
 import com.olezhakash.travel_agency_system.trip.repository.TripRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class TripService {
@@ -37,6 +39,9 @@ public class TripService {
                 .build();
 
         tripRepository.save(toSave);
+
+        log.info("Trip created: {}", toSave.getId());
+
         return toTripResponse(toSave);
     }
 
@@ -83,6 +88,8 @@ public class TripService {
 
         tripRepository.save(toUpdate);
 
+        log.info("Trip updated: {}", toUpdate.getId());
+
         return toTripResponse(toUpdate);
 
     }
@@ -104,6 +111,8 @@ public class TripService {
     }
 
     public void deleteTrip(Long id) {
+
+        log.info("Trip deleted: {}", id);
         tripRepository.deleteById(id);
     }
 
@@ -125,6 +134,8 @@ public class TripService {
         spec = spec.and(TripSpecifications.priceFrom(priceFrom));
         spec = spec.and(TripSpecifications.priceTo(priceTo));
         spec = spec.and(TripSpecifications.minAvailableSeats(minSeats));
+
+        log.debug("Searching trips with params: destination={}, startDateFrom={}, startDateTo={}, priceFrom={}, priceTo={}, minSeats={}", destination, startDateFrom, startDateTo, priceFrom, priceTo, minSeats);
 
         return tripRepository.findAll(spec, pageable)
                 .map(tripMapper::toResponse);

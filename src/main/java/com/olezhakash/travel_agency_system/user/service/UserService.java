@@ -63,13 +63,15 @@ public class UserService {
         userRepository.save(user);
 
 
-        log.info("User registered successfully: " + userRecord.getUid());
+        log.info("User registered successfully: {}", userRecord.getUid());
     }
 
     public UserDetailedResponse getUserById(String uid) {
         User user = userRepository.findById(uid).orElseThrow(
                 () -> new RuntimeException("User not found")
         );
+
+        log.debug("User fetched: {}", user.getId());
 
         return UserDetailedResponse.builder()
                 .id(user.getId())
